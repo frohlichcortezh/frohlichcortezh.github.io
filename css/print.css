@@ -1,12 +1,12 @@
 @media print {
 
-    .accordion .content .collapse {
+    .accordion .content {
         display: block !important;
         height: fit-content !important;
     }
     
     a[href*='//']:after {
-        content:"";
+        content:" (" attr(href) ") ";
         color: primary;
         align-content: space-around;
     }

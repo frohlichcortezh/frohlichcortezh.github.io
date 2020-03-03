@@ -1,49 +1,46 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://frohlichcortezh.github.io/</loc>
-    <priority>0</priority>
+    <loc>//frohlichcortezh.github.io/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="https://frohlichcortezh.github.io/en/"
+                href="//frohlichcortezh.github.io/en/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="fr"
-                href="https://frohlichcortezh.github.io/"
+                href="//frohlichcortezh.github.io/"
                 />
   </url>
   
   <url>
-    <loc>https://frohlichcortezh.github.io/categories/</loc>
-    <priority>0</priority>
+    <loc>//frohlichcortezh.github.io/categories/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="https://frohlichcortezh.github.io/en/categories/"
+                href="//frohlichcortezh.github.io/en/categories/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="fr"
-                href="https://frohlichcortezh.github.io/categories/"
+                href="//frohlichcortezh.github.io/categories/"
                 />
   </url>
   
   <url>
-    <loc>https://frohlichcortezh.github.io/tags/</loc>
-    <priority>0</priority>
+    <loc>//frohlichcortezh.github.io/tags/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="https://frohlichcortezh.github.io/en/tags/"
+                href="//frohlichcortezh.github.io/en/tags/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="fr"
-                href="https://frohlichcortezh.github.io/tags/"
+                href="//frohlichcortezh.github.io/tags/"
                 />
   </url>
   
