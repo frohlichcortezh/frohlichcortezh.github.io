@@ -31,6 +31,13 @@ export interface Entry {
 	draft?: boolean;
 }
 
+// Full years since the first professional job (Mar 2008), computed at build time:
+// "more than N years" stays true even if the site is not rebuilt for a while.
+const careerStart = new Date(2008, 2);
+const now = new Date();
+export const careerYears =
+	now.getFullYear() - careerStart.getFullYear() - (now.getMonth() < careerStart.getMonth() ? 1 : 0);
+
 export const person = {
 	name: 'Hector Frohlich Cortez',
 	headline: {
@@ -46,9 +53,9 @@ export const person = {
 		{ label: 'Stack Overflow', url: 'https://stackoverflow.com/users/8323634/frohlichcortezh', handle: '8323634' },
 	],
 	summary: {
-		en: 'Developer with more than fifteen years of experience in .NET and web applications, now running Resolu, the technology company I founded for software development, architecture, automation and infrastructure. Through Resolu I work as a contracted Tech Lead for clients, looking after software delivery from code to pipeline and the services that support it. I value code that is simple to read and maintain, free software, and writing down what I learn.',
-		pt: 'Desenvolvedor com mais de quinze anos de experiência em .NET e aplicações web, hoje à frente da Resolu, empresa de tecnologia que fundei para desenvolvimento de software, arquitetura, automação e infraestrutura. Pela Resolu atuo como Tech Lead terceirizado para clientes, cuidando da entrega de software do código ao pipeline e dos serviços que a sustentam. Prezo por código simples de ler e de manter, por software livre e por registrar o que aprendo.',
-		fr: 'Développeur avec plus de quinze ans d’expérience en .NET et en applications web, je dirige aujourd’hui Resolu, l’entreprise technologique que j’ai fondée pour le développement logiciel, l’architecture, l’automatisation et l’infrastructure. Via Resolu, j’interviens comme Tech Lead externe auprès de clients : livraison logicielle du code au pipeline et services qui la soutiennent. Je privilégie un code simple à lire et à maintenir, le logiciel libre et la documentation de ce que j’apprends.',
+		en: `Developer with more than ${careerYears} years of experience in .NET and web applications, now running Resolu, the technology company I founded for software development, architecture, automation and infrastructure. Through Resolu I work as a contracted Tech Lead for clients, looking after software delivery from code to pipeline and the services that support it. I value code that is simple to read and maintain, free software, and writing down what I learn.`,
+		pt: `Desenvolvedor com mais de ${careerYears} anos de experiência em .NET e aplicações web, hoje à frente da Resolu, empresa de tecnologia que fundei para desenvolvimento de software, arquitetura, automação e infraestrutura. Pela Resolu atuo como Tech Lead terceirizado para clientes, cuidando da entrega de software do código ao pipeline e dos serviços que a sustentam. Prezo por código simples de ler e de manter, por software livre e por registrar o que aprendo.`,
+		fr: `Développeur avec plus de ${careerYears} ans d’expérience en .NET et en applications web, je dirige aujourd’hui Resolu, l’entreprise technologique que j’ai fondée pour le développement logiciel, l’architecture, l’automatisation et l’infrastructure. Via Resolu, j’interviens comme Tech Lead externe auprès de clients : livraison logicielle du code au pipeline et services qui la soutiennent. Je privilégie un code simple à lire et à maintenir, le logiciel libre et la documentation de ce que j’apprends.`,
 	} satisfies L,
 };
 
