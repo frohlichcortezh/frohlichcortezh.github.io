@@ -1,0 +1,725 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import EntryRow from './EntryRow.astro';
+import Period from './Period.astro';
+import Todo from './Todo.astro';
+import ResoluLogo from '../assets/brand/resolu-logo.svg';
+import photo from '../assets/profile.jpg';
+import type { Lang } from '../data/cv';
+import { education, experience, languages, langs, person, services, skills, venture } from '../data/cv';
+import { locales, showDrafts, t, ui } from '../lib/i18n';
+
+const { lang } = Astro.props as { lang: Lang };
+const s = ui[lang];
+const visibleServices = services.filter((e) => showDrafts || !e.draft);
+const updated = new Intl.DateTimeFormat(locales[lang].tag, { year: 'numeric', month: 'long' }).format(new Date());
+const [first, ...rest] = person.name.split(' ');
+const last = rest.pop();
+const ext = { rel: 'noopener noreferrer', target: '_blank' } as const;
+---
+
+<Base lang={lang}>
+	<Header slot="header" lang={lang} />
+
+	<section class="wrap hero" aria-labelledby="nome">
+		<div class="intro">
+			<p class="label">CV <span aria-hidden="true">·</span> {updated}</p>
+			<h1 id="nome">
+				{`${first} ${rest.join(' ')} `}<span class="mark">{last}</span>
+			</h1>
+			<p class="headline">{t(person.headline, lang)}</p>
+			<p class="summary">{t(person.summary, lang)}</p>
+		</div>
+
+		<aside class="sheet">
+			<figure class="photo">
+				<Image src={photo} alt={person.name} width={360} widths={[180, 360]} sizes="180px" loading="eager" />
+				<span class="crop tl" aria-hidden="true"></span>
+				<span class="crop br" aria-hidden="true"></span>
+			</figure>
+			<dl>
+				<div>
+					<dt class="label">{s.location}</dt>
+					<dd>{t(person.location, lang)}</dd>
+				</div>
+				<div>
+					<dt class="label">{s.contact}</dt>
+					<dd><a href={`mailto:${person.email}`}>{person.email}</a></dd>
+					{
+						person.links.map((link) => (
+							<dd>
+								<a href={link.url} {...ext}>
+									{link.label}
+									<span class="visually-hidden"> ({s.newTab})</span>
+								</a>
+							</dd>
+						))
+					}
+				</div>
+				<div>
+					<dt class="label">{s.languages}</dt>
+					{
+						languages.map((l) => (
+							<dd class="lang">
+								<span>{t(l.name, lang)}</span>
+								<span class="meter" aria-hidden="true">
+									{'■'.repeat(l.value)}
+									<span class="off">{'□'.repeat(4 - l.value)}</span>
+								</span>
+								<span class="level">{t(l.level, lang)}</span>
+							</dd>
+						))
+					}
+				</div>
+			</dl>
+		</aside>
+	</section>
+
+	<section class="wrap block" id="skills" aria-labelledby="h-skills">
+		<header class="section-head">
+			<h2 id="h-skills"><span class="num">01</span> {s.skillsHead}</h2>
+		</header>
+		<dl class="skills">
+			{
+				skills.map((group) => (
+					<div>
+						<dt class="label">{t(group.label, lang)}</dt>
+						<dd>
+							<ul>
+								{group.items.map((item) => (
+									<li>{item}</li>
+								))}
+							</ul>
+						</dd>
+					</div>
+				))
+			}
+		</dl>
+	</section>
+
+	<section class="wrap block" id="resolu" aria-labelledby="h-resolu">
+		<header class="section-head">
+			<h2 id="h-resolu"><span class="num">02</span> {s.ventureHead}</h2>
+			<a class="label" href={venture.url} {...ext}>resolu.dev<span class="visually-hidden"> ({s.newTab})</span></a>
+		</header>
+
+		<div class="venture">
+			<div class="venture-logo">
+				<ResoluLogo class="logo" role="img" aria-label="Resolu" />
+			</div>
+			<div class="venture-body">
+				<p class="venture-meta">
+					<span class="role">{t(venture.role, lang)}</span>
+					<Period period={venture.period} lang={lang} />
+				</p>
+				<p class="pitch">{t(venture.pitch, lang)}</p>
+				<ul>
+					{venture.items.map((item) => <li>{t(item, lang)}</li>)}
+				</ul>
+				<p class="goal">{t(venture.goal, lang)}</p>
+				<a class="visit" href={venture.url} {...ext}>
+					{s.visit} resolu.dev →<span class="visually-hidden"> ({s.newTab})</span>
+				</a>
+			</div>
+		</div>
+	</section>
+
+	<section class="wrap block" id="services" aria-labelledby="h-services">
+		<header class="section-head">
+			<h2 id="h-services"><span class="num">03</span> {s.servicesHead}</h2>
+		</header>
+		<p class="lead">{s.servicesLead}</p>
+
+		<ol class="tree">
+			{
+				visibleServices.map((entry, i) => (
+					<li class:list={['client panel', { draft: entry.draft }]}>
+						<p class="code label">
+							S.{String(i + 1).padStart(2, '0')}
+							{entry.context && <span> · {t(entry.context, lang)}</span>}
+						</p>
+						<h3>{entry.org ?? <Todo lang={lang} />}</h3>
+						<p class="client-role">{t(entry.role, lang)}</p>
+						<p class="label client-period">
+							{entry.periods.map((p) => (
+								<Period period={p} lang={lang} />
+							))}
+						</p>
+						{entry.summary && <p class="client-summary">{t(entry.summary, lang)}</p>}
+						{entry.items.length > 0 ? (
+							<ul>
+								{entry.items.map((item) => (
+									<li>{t(item, lang)}</li>
+								))}
+							</ul>
+						) : (
+							<p>
+								<Todo lang={lang} />
+							</p>
+						)}
+						{entry.stack && (
+							<ul class="stack" aria-label="Stack">
+								{entry.stack.map((x) => (
+									<li>{x}</li>
+								))}
+							</ul>
+						)}
+					</li>
+				))
+			}
+		</ol>
+	</section>
+
+	<section class="wrap block" id="experience" aria-labelledby="h-experience">
+		<header class="section-head">
+			<h2 id="h-experience"><span class="num">04</span> {s.experienceHead}</h2>
+		</header>
+		{experience.map((entry) => <EntryRow entry={entry} lang={lang} />)}
+	</section>
+
+	<section class="wrap block" id="education" aria-labelledby="h-education">
+		<header class="section-head">
+			<h2 id="h-education"><span class="num">05</span> {s.educationHead}</h2>
+		</header>
+		{education.map((entry) => <EntryRow entry={entry} lang={lang} compact />)}
+	</section>
+
+	<footer slot="footer" class="site-footer">
+		<div class="wrap foot">
+			<p class="label">{s.updated} {updated}</p>
+			<p class="colophon">{s.colophon}</p>
+			<p class="label links no-print">
+				{
+					langs.map((l) => (
+						<a href={locales[l].path} hreflang={locales[l].tag} lang={locales[l].tag} aria-current={l === lang ? 'page' : undefined}>
+							{locales[l].name}
+						</a>
+					))
+				}
+				<a href="https://github.com/frohlichcortezh/frohlichcortezh.github.io" {...ext}>
+					{s.source}<span class="visually-hidden"> ({s.newTab})</span>
+				</a>
+			</p>
+		</div>
+	</footer>
+</Base>
+
+<style>
+	/* ── Hero ──────────────────────────────────────────── */
+	.hero {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: var(--space-l) var(--gutter);
+		padding-block: var(--space-2xl) var(--space-xl);
+	}
+
+	.intro {
+		grid-column: 1 / span 8;
+	}
+
+	h1 {
+		margin: var(--space-xs) 0 var(--space-s);
+		font-size: var(--step-5);
+		line-height: 0.98;
+	}
+
+	.headline {
+		margin: 0 0 var(--space-m);
+		font-family: var(--font-mono);
+		font-size: var(--step-0);
+		color: var(--c-accent);
+	}
+
+	.summary {
+		max-width: var(--measure);
+		font-size: var(--step-1);
+		line-height: 1.55;
+	}
+
+	.sheet {
+		grid-column: 9 / -1;
+		padding-left: var(--gutter);
+		border-left: var(--hairline) solid var(--c-rule);
+	}
+
+	.photo {
+		position: relative;
+		width: 9rem;
+		margin: 0 0 var(--space-m);
+	}
+
+	.photo :global(img) {
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+		filter: grayscale(1) contrast(1.05);
+		border: var(--hairline) solid var(--c-border);
+	}
+
+	.crop {
+		position: absolute;
+		width: 0.9rem;
+		height: 0.9rem;
+		border: 0 solid var(--c-rule);
+	}
+
+	.crop.tl {
+		top: -0.45rem;
+		left: -0.45rem;
+		border-top-width: 2px;
+		border-left-width: 2px;
+	}
+
+	.crop.br {
+		right: -0.45rem;
+		bottom: -0.45rem;
+		border-right-width: 2px;
+		border-bottom-width: 2px;
+	}
+
+	.sheet dl {
+		display: grid;
+		gap: var(--space-m);
+		margin: 0;
+		font-size: var(--step--1);
+	}
+
+	.sheet dt {
+		margin-bottom: var(--space-3xs);
+		padding-bottom: var(--space-3xs);
+		border-bottom: var(--hairline) solid var(--c-border);
+	}
+
+	.sheet dd {
+		margin: 0.15em 0 0;
+		overflow-wrap: anywhere;
+	}
+
+	.lang {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		column-gap: var(--space-xs);
+	}
+
+	.meter {
+		font-family: var(--font-mono);
+		letter-spacing: 0.1em;
+		color: var(--c-primary);
+	}
+
+	.meter .off {
+		color: var(--c-border);
+	}
+
+	.level {
+		grid-column: 1 / -1;
+		color: var(--c-muted);
+		font-size: var(--step--2);
+		font-family: var(--font-mono);
+	}
+
+	/* ── Sections ──────────────────────────────────────── */
+	.block {
+		padding-block: var(--space-xl);
+	}
+
+	.num {
+		margin-right: 0.6em;
+		color: var(--c-accent);
+	}
+
+	.section-head a.label {
+		color: var(--c-primary);
+	}
+
+	.lead {
+		max-width: var(--measure);
+		color: var(--c-muted);
+		margin-top: calc(-1 * var(--space-s));
+	}
+
+	/* ── Resolu: the company ───────────────────────────── */
+	.venture {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: var(--space-l) var(--gutter);
+		padding: var(--space-xl) var(--gutter);
+		background: var(--brand-block-bg);
+		color: var(--brand-block-fg);
+		border-radius: var(--radius);
+	}
+
+	.venture-logo {
+		grid-column: 1 / span 3;
+	}
+
+	.logo {
+		width: min(9rem, 100%);
+		color: var(--brand-block-fg);
+	}
+
+	.venture-body {
+		grid-column: 4 / -1;
+	}
+
+	.venture-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2xs) var(--space-m);
+		align-items: baseline;
+		margin: 0 0 var(--space-s);
+		font-family: var(--font-mono);
+		font-size: var(--step--1);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.venture-meta .role {
+		font-weight: 700;
+		color: var(--brand-block-accent);
+	}
+
+	.pitch {
+		max-width: var(--measure);
+		font-family: var(--font-display);
+		font-size: var(--step-2);
+		line-height: 1.25;
+	}
+
+	.venture ul {
+		max-width: var(--measure);
+		padding-left: 1.3em;
+	}
+
+	.venture li + li {
+		margin-top: 0.4em;
+	}
+
+	.venture li::marker {
+		content: '▪  ';
+		color: var(--brand-block-accent);
+	}
+
+	.goal {
+		margin-top: var(--space-m);
+		font-family: var(--font-mono);
+		font-size: var(--step--1);
+		color: var(--brand-block-accent);
+	}
+
+	.visit {
+		color: var(--brand-block-fg);
+		font-family: var(--font-mono);
+		font-size: var(--step--1);
+	}
+
+	.visit:hover {
+		color: var(--brand-block-accent);
+	}
+
+	.venture :global(.todo) {
+		color: var(--brand-block-accent);
+		border-color: var(--brand-block-accent);
+	}
+
+	/* ── Services: a tree hanging from Resolu ──────────── */
+	.tree {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+		gap: var(--space-m);
+		margin: 0;
+		padding: var(--space-m) 0 0 var(--space-l);
+		list-style: none;
+		border-left: 2px solid var(--c-rule);
+	}
+
+	.client {
+		position: relative;
+		padding: var(--space-m);
+		border-top: 3px solid var(--c-rule);
+	}
+
+	.client:first-child::before {
+		content: '';
+		position: absolute;
+		top: 1.6rem;
+		left: calc(-1 * var(--space-l) - 2px);
+		width: var(--space-l);
+		border-top: 2px solid var(--c-rule);
+	}
+
+	.client.draft {
+		border-style: dashed;
+		background: transparent;
+	}
+
+	.client .code {
+		margin: 0 0 var(--space-xs);
+	}
+
+	.client h3 {
+		margin: 0;
+		font-size: var(--step-2);
+	}
+
+	.client-role {
+		margin: 0.3em 0 0;
+		font-weight: 600;
+	}
+
+	.client-period {
+		margin: 0.2em 0 var(--space-s);
+	}
+
+	.client-summary {
+		font-size: var(--step--1);
+		color: var(--c-muted);
+	}
+
+	.client ul:not(.stack) {
+		padding-left: 1.2em;
+		font-size: var(--step--1);
+	}
+
+	.client li + li {
+		margin-top: 0.35em;
+	}
+
+	.client ul:not(.stack) li::marker {
+		content: '▪  ';
+		color: var(--c-accent);
+	}
+
+	.stack {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-3xs);
+		margin: var(--space-s) 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.stack li {
+		margin: 0;
+		padding: 0.1em 0.5em;
+		border: var(--hairline) solid var(--c-border);
+		border-radius: var(--radius);
+		font-family: var(--font-mono);
+		font-size: var(--step--2);
+		color: var(--c-muted);
+	}
+
+	/* ── Skills ────────────────────────────────────────── */
+	.skills {
+		display: grid;
+		margin: 0;
+	}
+
+	.skills > div {
+		display: grid;
+		grid-template-columns: minmax(9rem, 3fr) 9fr;
+		gap: var(--space-2xs) var(--gutter);
+		padding-block: var(--space-s);
+		border-top: var(--hairline) solid var(--c-border);
+	}
+
+	.skills dt {
+		padding-top: 0.3em;
+	}
+
+	.skills dd {
+		margin: 0;
+	}
+
+	.skills ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.2em 0;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.skills li:not(:last-child)::after {
+		content: '·';
+		margin-inline: 0.55em;
+		color: var(--c-accent);
+	}
+
+	/* ── Footer ────────────────────────────────────────── */
+	.site-footer {
+		margin-top: var(--space-xl);
+		border-top: 2px solid var(--c-rule);
+	}
+
+	.foot {
+		display: grid;
+		gap: var(--space-2xs);
+		padding-block: var(--space-l) var(--space-xl);
+	}
+
+	.foot p {
+		margin: 0;
+	}
+
+	.colophon {
+		color: var(--c-muted);
+		font-size: var(--step--1);
+	}
+
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-s);
+	}
+
+	.links a[aria-current='page'] {
+		color: var(--c-text);
+		text-decoration: none;
+		font-weight: 700;
+	}
+
+	/* ── Responsive ────────────────────────────────────── */
+	@media (max-width: 64rem) {
+		.intro {
+			grid-column: 1 / span 7;
+		}
+
+		.sheet {
+			grid-column: 8 / -1;
+		}
+	}
+
+	@media (max-width: 48rem) {
+		.hero {
+			padding-block: var(--space-xl) var(--space-l);
+		}
+
+		.intro,
+		.sheet {
+			grid-column: 1 / -1;
+		}
+
+		.sheet {
+			padding: var(--space-m) 0 0;
+			border-left: 0;
+			border-top: var(--hairline) solid var(--c-rule);
+		}
+
+		.venture-logo,
+		.venture-body {
+			grid-column: 1 / -1;
+		}
+
+		.logo {
+			width: 6rem;
+		}
+
+		.tree {
+			padding-left: var(--space-s);
+		}
+
+		.client:first-child::before {
+			left: calc(-1 * var(--space-s) - 2px);
+			width: var(--space-s);
+		}
+
+		.skills > div {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media print {
+		/* Printable width falls under the 48rem breakpoint: restore the two-column hero with a small photo. */
+		.hero {
+			grid-template-columns: 1fr 5.2cm;
+			gap: 0 1.2em;
+			padding-block: 0 1em;
+		}
+
+		.intro {
+			grid-column: 1;
+		}
+
+		.sheet {
+			grid-column: 2;
+			padding: 0 0 0 1em;
+			border-top: 0;
+			border-left: 1px solid var(--c-rule);
+		}
+
+		.photo {
+			width: 2.6cm;
+			margin-bottom: 0.8em;
+		}
+
+		.sheet dl {
+			gap: 0.6em;
+			font-size: 8.5pt;
+		}
+
+		.skills > div {
+			grid-template-columns: 8rem 1fr;
+			padding-block: 0.35em;
+		}
+
+		h1 {
+			font-size: 28pt;
+		}
+
+		.summary {
+			font-size: 11pt;
+		}
+
+		.block {
+			padding-block: 1em;
+		}
+
+		.venture {
+			grid-template-columns: 3cm 1fr;
+			gap: 0 1.2em;
+			padding: 1em 0;
+			border-block: 1px solid var(--c-rule);
+			break-inside: avoid;
+		}
+
+		.venture-logo,
+		.venture-body {
+			grid-column: auto;
+		}
+
+		.logo {
+			width: 2.6cm;
+			color: var(--c-logo);
+		}
+
+		.pitch {
+			font-size: 13pt;
+		}
+
+		.tree {
+			display: block;
+			padding: 0;
+			border-left: 0;
+		}
+
+		.client {
+			break-inside: auto;
+			margin-bottom: 0.8em;
+			padding: 0.8em 0 0;
+			border-inline: 0;
+			border-bottom: 0;
+		}
+
+		.client:first-child::before {
+			display: none;
+		}
+
+		.client.draft {
+			display: none;
+		}
+	}
+</style>

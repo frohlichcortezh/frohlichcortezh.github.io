@@ -1,0 +1,212 @@
+---
+import type { Lang } from '../data/cv';
+import { langs } from '../data/cv';
+import { locales, ui } from '../lib/i18n';
+import ThemePicker from './ThemePicker.astro';
+
+const { lang } = Astro.props as { lang: Lang };
+const s = ui[lang];
+const sections = [
+	{ id: 'skills', label: s.nav.skills },
+	{ id: 'resolu', label: s.nav.venture },
+	{ id: 'services', label: s.nav.services },
+	{ id: 'experience', label: s.nav.experience },
+	{ id: 'education', label: s.nav.education },
+];
+---
+
+<header class="site-header">
+	<div class="wrap bar">
+		<a class="home" href={locales[lang].path}>
+			<span class="sq" aria-hidden="true"></span>
+			<span class="host">frohlichcortezh<span class="dim">.github.io</span></span>
+		</a>
+		<nav aria-label={s.navLabel}>
+			<ol>
+				{
+					sections.map((item, i) => (
+						<li>
+							<a href={`#${item.id}`}>
+								<span class="code" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+								{item.label}
+							</a>
+						</li>
+					))
+				}
+			</ol>
+		</nav>
+		<div class="tools">
+			<nav class="langs" aria-label={s.langLabel}>
+				{
+					langs.map((l) => (
+						<a
+							href={locales[l].path}
+							hreflang={locales[l].tag}
+							lang={locales[l].tag}
+							aria-current={l === lang ? 'page' : undefined}
+							title={locales[l].name}
+						>
+							{locales[l].short}
+						</a>
+					))
+				}
+			</nav>
+			<button type="button" class="print" data-print hidden>{s.print}</button>
+			<ThemePicker lang={lang} />
+		</div>
+	</div>
+</header>
+
+<script>
+	for (const button of document.querySelectorAll<HTMLButtonElement>('[data-print]')) {
+		button.hidden = false;
+		button.addEventListener('click', () => window.print());
+	}
+</script>
+
+<style>
+	.site-header {
+		border-bottom: var(--hairline) solid var(--c-rule);
+		font-family: var(--font-mono);
+		font-size: var(--step--1);
+	}
+
+	.bar {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: center;
+		gap: var(--space-s) var(--space-m);
+		padding-block: var(--space-xs);
+	}
+
+	.home {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-xs);
+		color: var(--c-logo);
+		text-decoration: none;
+		font-weight: 700;
+	}
+
+	.sq {
+		width: 0.9rem;
+		height: 0.9rem;
+		background: var(--c-logo);
+		box-shadow: 0.3rem 0.3rem 0 var(--c-highlight);
+	}
+
+	.dim {
+		color: var(--c-muted);
+		font-weight: 400;
+	}
+
+	.bar > * {
+		min-width: 0;
+	}
+
+	ol {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2xs) var(--space-m);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	nav a {
+		color: var(--c-text);
+		text-decoration: none;
+	}
+
+	nav a:hover {
+		color: var(--c-primary);
+		text-decoration: underline;
+	}
+
+	.code {
+		margin-right: 0.4em;
+		color: var(--c-accent);
+	}
+
+	.tools {
+		display: flex;
+		align-items: center;
+		gap: var(--space-s);
+	}
+
+	.langs {
+		display: flex;
+		border: var(--hairline) solid var(--c-border);
+		border-radius: var(--radius);
+	}
+
+	.langs a {
+		padding: 0.2em 0.55em;
+		font-size: var(--step--2);
+		line-height: 1.6;
+	}
+
+	.langs a + a {
+		border-left: var(--hairline) solid var(--c-border);
+	}
+
+	.langs a[aria-current='page'] {
+		background: var(--c-text);
+		color: var(--c-bg);
+		font-weight: 700;
+	}
+
+	.print {
+		min-height: 2rem;
+		padding: 0.25em 0.7em;
+		border: var(--hairline) solid var(--c-border);
+		border-radius: var(--radius);
+		background: var(--c-surface);
+		color: var(--c-text);
+		font: inherit;
+		font-size: var(--step--2);
+		cursor: pointer;
+	}
+
+	.print:hover {
+		border-color: var(--c-text);
+	}
+
+	.print[hidden] {
+		display: none;
+	}
+
+	@media (max-width: 64rem) {
+		.bar {
+			grid-template-columns: 1fr auto;
+		}
+
+		.bar > nav {
+			grid-column: 1 / -1;
+			grid-row: 2;
+		}
+	}
+
+	@media (max-width: 30rem) {
+		.bar {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.bar > nav {
+			grid-row: auto;
+		}
+
+		.dim,
+		.print {
+			display: none;
+		}
+
+		.tools {
+			gap: var(--space-2xs);
+		}
+
+		.theme-picker :global(label) {
+			display: none;
+		}
+	}
+</style>

@@ -1,0 +1,32 @@
+---
+import type { Lang, Period } from '../data/cv';
+import { periodParts, showDrafts } from '../lib/i18n';
+import Todo from './Todo.astro';
+
+const { period, lang } = Astro.props as { period: Period; lang: Lang };
+const [start, end] = periodParts(period, lang);
+// In production unknown parts are dropped, so "? – present" becomes "present" rather than "– present".
+const parts = (start !== null && start === end ? [start] : [start, end]).filter((p) => showDrafts || p !== null);
+---
+
+{
+	parts.length > 0 && (
+		<span class="period">
+			{parts.map((part, i) => (
+				<>
+					{i > 0 && <span>–</span>}
+					{part ?? <Todo lang={lang} />}
+				</>
+			))}
+		</span>
+	)
+}
+
+<style>
+	.period {
+		display: inline-flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.35em;
+	}
+</style>

@@ -1,0 +1,82 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import type { Lang } from '../data/cv';
+import { langs } from '../data/cv';
+import { locales, ui } from '../lib/i18n';
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = ui[lang];
+const site = Astro.site!;
+const canonical = new URL(locales[lang].path, site);
+---
+
+<!doctype html>
+<html lang={locales[lang].tag}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#f6f6fa" />
+		<script is:inline>
+			// Resolves the stored choice (or "auto") into a concrete data-theme before first paint.
+			(() => {
+				const root = document.documentElement;
+				const dark = matchMedia('(prefers-color-scheme: dark)');
+				const more = matchMedia('(prefers-contrast: more)');
+				const choices = ['auto', 'light', 'dark', 'contrast'];
+				const read = () => {
+					try {
+						const v = localStorage.getItem('cv-theme');
+						return choices.includes(v) ? v : 'auto';
+					} catch {
+						return 'auto';
+					}
+				};
+				const apply = () => {
+					const choice = read();
+					const scheme = dark.matches ? 'dark' : 'light';
+					const theme =
+						choice === 'contrast' || (choice === 'auto' && more.matches)
+							? `contrast-${scheme}`
+							: choice === 'auto'
+								? scheme
+								: choice;
+					root.dataset.theme = theme;
+					root.dataset.themeChoice = choice;
+					const bars = { light: '#f6f6fa', dark: '#1c1e2e', 'contrast-light': '#ffffff', 'contrast-dark': '#000000' };
+					document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bars[theme]);
+					document.dispatchEvent(new CustomEvent('cv:theme', { detail: { choice, theme } }));
+				};
+				dark.addEventListener('change', apply);
+				more.addEventListener('change', apply);
+				window.cvTheme = { apply, read };
+				apply();
+			})();
+		</script>
+		<title>{s.title}</title>
+		<meta name="description" content={s.description} />
+		<link rel="canonical" href={canonical} />
+		{langs.map((l) => <link rel="alternate" hreflang={locales[l].tag} href={new URL(locales[l].path, site)} />)}
+		<link rel="alternate" hreflang="x-default" href={new URL('/', site)} />
+		<meta property="og:type" content="profile" />
+		<meta property="og:title" content={s.title} />
+		<meta property="og:description" content={s.description} />
+		<meta property="og:url" content={canonical} />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<Font cssVariable="--font-slab" preload={[{ weight: '800' }]} />
+		<Font cssVariable="--font-plex" preload={[{ weight: '400', style: 'normal' }]} />
+		<Font cssVariable="--font-meslo" preload={[{ weight: '400' }]} />
+	</head>
+	<body>
+		<a class="skip-link" href="#conteudo">{s.skip}</a>
+		<slot name="header" />
+		<main id="conteudo" tabindex="-1">
+			<slot />
+		</main>
+		<slot name="footer" />
+	</body>
+</html>
